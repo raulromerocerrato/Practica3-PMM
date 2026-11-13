@@ -1,35 +1,13 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:movies_app/models/artwork.dart';
+import 'package:movies_app/helpers/met_api.dart';
 
 class MovieSlider extends StatelessWidget {
   final String titol;
   final int departamentId;
 
   const MovieSlider({required this.titol, required this.departamentId});
-  Future<List<Artwork>> _carregarObres() async {
-    const base = 'https://collectionapi.metmuseum.org/public/collection';
 
-    final resposta = await http.get(Uri.parse(
-        '$base/v1.1/search?departmentId=$departamentId&isHighlight=true&hasImages=true&limit=15'));
-    final dades = json.decode(resposta.body);
-    final ids = (dades['objectIDs'] as List? ?? []).whereType<int>().toList();
-
-    final obres = <Artwork>[];
-    for (final id in ids) {
-      try {
-        final r = await http.get(Uri.parse('$base/v1/objects/$id'));
-        if (r.statusCode != 200) continue;
-        final obra = Artwork.fromJson(json.decode(r.body));
-        if (obra.teImatge) obres.add(obra);
-      } catch (e) {
-        continue;
-      }
-    }
-    return obres;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +25,7 @@ class MovieSlider extends StatelessWidget {
           const SizedBox(height: 5),
           Expanded(
             child: FutureBuilder(
-              future: _carregarObres(),
+              future: carregarObres(departamentId: departamentId),
               builder: (BuildContext context,
                   AsyncSnapshot<List<Artwork>> snapshot) {
                 if (snapshot.hasError) {
