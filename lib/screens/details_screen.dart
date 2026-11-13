@@ -33,8 +33,9 @@ class _CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar(
+        return SliverAppBar(
       backgroundColor: Colors.indigo,
+      foregroundColor: Colors.white,
       expandedHeight: 200,
       floating: false,
       pinned: true,
@@ -44,11 +45,11 @@ class _CustomAppBar extends StatelessWidget {
         title: Container(
           width: double.infinity,
           alignment: Alignment.bottomCenter,
-          color: Colors.black12,
-          padding: const EdgeInsets.only(bottom: 10, left: 10, right: 10),
+          color: Colors.black54,
+          padding: const EdgeInsets.only(bottom: 10, top: 6, left: 10, right: 10),
           child: Text(
             obra.titol,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16, color: Colors.white),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -89,8 +90,7 @@ class _PosterAndTitile extends StatelessWidget {
           const SizedBox(
             width: 20,
           ),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: size.width - 190),
+           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -108,7 +108,8 @@ class _PosterAndTitile extends StatelessWidget {
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today_outlined, size: 15, color: Colors.grey),
+                    const Icon(Icons.calendar_today_outlined,
+                        size: 15, color: Colors.grey),
                     const SizedBox(width: 5),
                     Flexible(
                       child: Text(obra.data,
