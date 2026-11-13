@@ -29,7 +29,7 @@ class Artwork {
   bool get teImatge => imatgePrincipal.isNotEmpty;
 
   factory Artwork.fromJson(Map<String, dynamic> json) => Artwork(
-      id: json['objectId'],
+      id: json['objectID'],
       titol: json['title'] ?? '',
       artista: json['artistDisplayName'] ?? '',
       data: json['objectDate'] ?? '',
