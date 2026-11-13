@@ -1,7 +1,35 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:movies_app/models/artwork.dart';
 
 class MovieSlider extends StatelessWidget {
-  // const MovieSlider({Key? key}) : super(key: key);
+  final String titol;
+  final int departamentId;
+
+  const MovieSlider({required this.titol, required this.departamentId});
+  Future<List<Artwork>> _carregarObres() async {
+    const base = 'https://collectionapi.metmuseum.org/public/collection';
+
+    final resposta = await http.get(Uri.parse(
+        '$base/v1.1/search?departmentId=$departamentId&isHighlight=true&hasImages=true&limit=15'));
+    final dades = json.decode(resposta.body);
+    final ids = (dades['objectIDs'] as List? ?? []).whereType<int>().toList();
+
+    final obres = <Artwork>[];
+    for (final id in ids) {
+      try {
+        final r = await http.get(Uri.parse('$base/v1/objects/$id'));
+        if (r.statusCode != 200) continue;
+        final obra = Artwork.fromJson(json.decode(r.body));
+        if (obra.teImatge) obres.add(obra);
+      } catch (e) {
+        continue;
+      }
+    }
+    return obres;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,17 +40,38 @@ class MovieSlider extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text('Populars',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(titol, style:const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 5),
           Expanded(
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 20,
-                itemBuilder: (_, int index) => _MoviePoster()),
+            child: FutureBuilder(
+              future: _carregarObres(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Artwork>> snapshot) {
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Text('No s\'han pogut carregar les obres')
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final obres = snapshot.data!;
+                if (obres.isEmpty) {
+                  return const Center(child: Text('No hi ha obres'));
+                }
+
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: obres.length,
+                  itemBuilder: (_, int index) =>
+                    _MoviePoster(obra: obres[index])
+                );
+              },
+            ),
           )
         ],
       ),
@@ -31,7 +80,9 @@ class MovieSlider extends StatelessWidget {
 }
 
 class _MoviePoster extends StatelessWidget {
-  const _MoviePoster({Key? key}) : super(key: key);
+  final Artwork obra;
+
+  const _MoviePoster({required this.obra});
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +93,13 @@ class _MoviePoster extends StatelessWidget {
       child: Column(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, 'details',
-                arguments: 'detalls peli'),
+            onTap: () =>
+                Navigator.pushNamed(context, 'details', arguments: obra),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: FadeInImage(
                 placeholder: AssetImage('assets/no-image.jpg'),
-                image: NetworkImage('https://placehold.co/300x400/png'),
+                image: NetworkImage(obra.imatgeMiniatura),
                 width: 130,
                 height: 190,
                 fit: BoxFit.cover,
@@ -59,7 +110,7 @@ class _MoviePoster extends StatelessWidget {
             height: 5,
           ),
           Text(
-            'Star Wars: El retorno del Jedi',
+            obra.titol,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,

@@ -19,11 +19,9 @@ class HomeScreen extends StatelessWidget {
               // Targetes principals
               CardSwiper(),
 
-              // Slider de pel·licules
-              MovieSlider(),
-              // Poodeu fer la prova d'afegir-ne uns quants, veureu com cada llista és independent
-              // MovieSlider(),
-              // MovieSlider(),
+              MovieSlider(titol: 'Pintura europea', departamentId: 11),
+              MovieSlider(titol: 'Art egipci', departamentId: 10),
+              MovieSlider(titol: 'Art modern', departamentId: 21),
             ],
           ),
         ),
