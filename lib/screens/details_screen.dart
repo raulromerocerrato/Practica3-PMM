@@ -16,7 +16,7 @@ class DetailsScreen extends StatelessWidget {
               [
                 _PosterAndTitile(obra: obra),
                 _Overview(obra: obra),
-                CastingCards(),
+                CastingCards(imatges: obra.imatgesAddicionals),
               ],
             ),
           ),
